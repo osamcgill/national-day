@@ -419,6 +419,7 @@ function render(){
  }
  stage.innerHTML=`<section class="scene">${h}</section>`;
  wire(s);
+ {const nb=document.getElementById('next');if(nb)nb.textContent=(cur===SECTIONS.length-1)?'⌂ الرجوع إلى الواجهة':'التالي ←';}
 }
 
 function quizHTML(kind){
@@ -641,7 +642,7 @@ function tick(){const t=document.getElementById('timer');if(!t)return;t.textCont
 function stopTimer(keep){if(timer){clearInterval(timer);timer=null;}if(!keep)left=0;}
 
 document.getElementById('prev').onclick=()=>go(cur-1);
-document.getElementById('next').onclick=()=>go(cur+1);
+document.getElementById('next').onclick=()=>{if(cur===SECTIONS.length-1){openIntro();}else go(cur+1);};
 document.getElementById('fs').onclick=()=>{try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
 document.addEventListener('keydown',e=>{
  if(e.target.isContentEditable||e.target.tagName==='INPUT')return;
