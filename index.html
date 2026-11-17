@@ -298,7 +298,6 @@ const SECTIONS=[
  {id:'map',label:'من أين أنتم؟'},
  {id:'kids',label:'مسابقة الأطفال'},
  {id:'adults',label:'مسابقة الكبار'},
- {id:'greet',label:'تهنئة لعُمان'},
  {id:'photos',label:'جدار الصور'},
  {id:'dinner',label:'العشاء'}
 ];
@@ -337,7 +336,7 @@ function render(){
   <div class="hero"><figure class="hflag"><img src="flag.svg" alt="علم سلطنة عُمان"></figure><div class="mid"><div class="big282">${ar(282)}</div><div class="founder">الإمام أحمد بن سعيد البوسعيدي · مؤسس الدولة البوسعيدية ١٧٤٤م</div></div><figure class="sf hs"><img src="sultan-haitham.jpg" alt="السلطان هيثم بن طارق"><figcaption><span>حضرة صاحب الجلالة</span><b>السلطان هيثم بن طارق المعظم</b><span>حفظه الله ورعاه</span></figcaption></figure></div>
   <h1 class="h">اليوم الوطني لسلطنة عُمان</h1>
   <p class="sub">الذكرى الثانية والثمانون بعد المئتين لتأسيس الدولة البوسعيدية ٢٠ نوفمبر المجيد</p>
-  <div class="agenda">${SECTIONS.slice(1).map((x,k)=>`<button type="button" data-go="${k+1}"><i>${ar(k+1)}</i>${x.label}<small>${['يُرجى الوقوف','تلاوة','عرض مرئي','ما أنجزناه','أسرة الرابطة','خريطة الحضور','للأطفال','للكبار','بالصوت والصورة','شاركونا صوركم','تفضلوا'][k]}</small></button>`).join('')}</div>
+  <div class="agenda">${SECTIONS.slice(1).map((x,k)=>`<button type="button" data-go="${k+1}"><i>${ar(k+1)}</i>${x.label}<small>${['يُرجى الوقوف','تلاوة','عرض مرئي','ما أنجزناه','أسرة الرابطة','خريطة الحضور','للأطفال','للكبار','شاركونا صوركم','تفضلوا'][k]}</small></button>`).join('')}</div>
   <div class="row" style="justify-content:center;gap:10px;margin-top:14px"><button type="button" class="tool" id="openbtn">♪ تشغيل الموسيقى</button><button type="button" class="tool" onclick="openIntro()">↺ الواجهة</button></div>`;
  }
  else if(s==='anthem'){
