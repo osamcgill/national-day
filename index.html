@@ -89,6 +89,22 @@ button:focus-visible,[contenteditable]:focus-visible,input:focus-visible{outline
 .item b{display:block;font-size:clamp(15px,1.7vw,19px);color:var(--ink)}
 .item span{display:block;font-size:13.5px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
 .item.next{border-style:dashed}
+.item.new b::after{content:"جديد";font-size:11px;font-weight:700;color:#1F2A38;background:var(--gold-l);border-radius:20px;padding:1px 8px;margin-inline-start:8px;vertical-align:2px}
+.fnd{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fnd div{border:1px solid var(--gold);border-radius:14px;padding:10px 12px;background:rgba(201,165,90,.08)}
+.fnd small{display:block;font-size:12.5px;font-weight:700;color:var(--gold);letter-spacing:.04em}
+.fnd b{display:block;font-family:var(--display);font-size:clamp(19px,2vw,25px);color:var(--gold-l);line-height:1.35}
+.fnd span,.mem span{display:block;font-size:12.5px;color:var(--muted)}
+.mem{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;text-align:right;counter-reset:m}
+.mem>div{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:6px 12px;background:rgba(255,255,255,.03);min-width:0}
+.mem>div::before{counter-increment:m;content:counter(m,arabic-indic);flex:none;width:28px;height:28px;border-radius:50%;background:var(--gold-l);color:#1F2A38;font-weight:700;font-size:14px;display:grid;place-items:center}
+.mem p{margin:0;min-width:0}
+.mem b{display:block;font-size:clamp(14px,1.5vw,17px);color:var(--ink)}
+.mem>div.new{border-color:var(--gold)}
+.vtabs{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.vtabs button{font:inherit;font-size:15px;border:1px solid var(--gold);background:transparent;color:var(--gold-l);border-radius:30px;padding:8px 18px;cursor:pointer}
+.vtabs button.on{background:var(--gold-l);color:#1F2A38;font-weight:700}
+@media (max-width:820px){.fnd,.mem{grid-template-columns:1fr}}
 .item.next b{color:var(--gold-l)}
 /* quiz */
 .quiz{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;align-items:start;text-align:right}
@@ -216,12 +232,14 @@ const SECTIONS=[
  {id:'quran',label:'القرآن الكريم'},
  {id:'history',label:'تاريخ عُمان'},
  {id:'osam',label:'الرابطة'},
+ {id:'members',label:'أعضاء الرابطة'},
  {id:'kids',label:'مسابقة الأطفال'},
  {id:'adults',label:'مسابقة الكبار'},
  {id:'dinner',label:'العشاء'}
 ];
 let cur=0;let ribbonCut=false;let kidsBackup=false;
 const media={anthem:null,history:'history.mp4'};
+const HISTV=[['oman-story.mp4','فيديو «<bdi dir="ltr">This is Oman</bdi>» · دقيقة ونصف'],['history.mp4','عُمان عبر التاريخ · الفيلم الكامل']];let histI=0;
 const quizState={kids:{i:0,picked:null},adults:{i:0,picked:null}};
 let teams={kids:[['الفريق الأول',0],['الفريق الثاني',0]],adults:[['الفريق الأول',0],['الفريق الثاني',0],['الفريق الثالث',0]]};
 try{const t=JSON.parse(localStorage.getItem('nd282-teams')||'null');if(t&&t.kids&&t.adults)teams=t;}catch(e){}
@@ -235,7 +253,7 @@ function drawRail(){
   b.innerHTML=`<i>${ar(i)}</i>${s.label}`;b.onclick=()=>go(i);rail.appendChild(b);
   if(i===cur)b.scrollIntoView({block:'nearest',inline:'nearest'});});
 }
-function go(i){if(i<0||i>=SECTIONS.length)return;stopTimer();if(SECTIONS[i].id!=='start')stopOPEN();if(SECTIONS[i].id!=='osam')stopBGM();document.querySelectorAll('audio').forEach(a=>a.pause());cur=i;drawRail();render();try{history.replaceState(null,'','#'+SECTIONS[i].id)}catch(e){}}
+function go(i){if(i<0||i>=SECTIONS.length)return;stopTimer();if(SECTIONS[i].id!=='start')stopOPEN();if(SECTIONS[i].id!=='osam'&&SECTIONS[i].id!=='members')stopBGM();document.querySelectorAll('audio').forEach(a=>a.pause());cur=i;drawRail();render();try{history.replaceState(null,'','#'+SECTIONS[i].id)}catch(e){}}
 
 function pickBox(kind,accept,label){
  const m=media[kind];
@@ -254,7 +272,7 @@ function render(){
   <div class="hero"><figure class="hflag"><img src="flag.svg" alt="علم سلطنة عُمان"></figure><div class="mid"><div class="big282">${ar(282)}</div><div class="founder">الإمام أحمد بن سعيد البوسعيدي · مؤسس الدولة البوسعيدية ١٧٤٤م</div></div><figure class="sf hs"><img src="sultan-haitham.jpg" alt="السلطان هيثم بن طارق"><figcaption><span>حضرة صاحب الجلالة</span><b>السلطان هيثم بن طارق المعظم</b><span>حفظه الله ورعاه</span></figcaption></figure></div>
   <h1 class="h">اليوم الوطني لسلطنة عُمان</h1>
   <p class="sub">الذكرى الثانية والثمانون بعد المئتين لتأسيس الدولة البوسعيدية ٢٠ نوفمبر المجيد</p>
-  <div class="agenda">${SECTIONS.slice(1).map((x,k)=>`<button type="button" data-go="${k+1}"><i>${ar(k+1)}</i>${x.label}<small>${['يُرجى الوقوف','تلاوة','عرض مرئي','ما أنجزناه','للأطفال','للكبار','تفضلوا'][k]}</small></button>`).join('')}</div>
+  <div class="agenda">${SECTIONS.slice(1).map((x,k)=>`<button type="button" data-go="${k+1}"><i>${ar(k+1)}</i>${x.label}<small>${['يُرجى الوقوف','تلاوة','عرض مرئي','ما أنجزناه','أسرة الرابطة','للأطفال','للكبار','تفضلوا'][k]}</small></button>`).join('')}</div>
   <div class="row" style="justify-content:center;gap:10px;margin-top:14px"><button type="button" class="tool" id="openbtn">♪ تشغيل الموسيقى</button><button type="button" class="tool" onclick="openIntro()">↺ الواجهة</button></div>`;
  }
  else if(s==='anthem'){
@@ -274,7 +292,8 @@ function render(){
  }
  else if(s==='history'){
   h=`<div class="eyebrow">الفقرة الثالثة</div><h1 class="h" style="font-size:clamp(34px,5vw,64px)">عُمان عبر التاريخ</h1>
-  ${media.history?pickBox('history'):`<div class="media"><div class="empty">العرض المرئي عن تاريخ عُمان${pickBox('history','video/*','اختر ملف الفيديو')}<span class="note">يعمل الفيديو من جهاز العرض مباشرة ولا يُرفع إلى أي مكان.</span></div></div>`}`;
+  <div class="vtabs">${HISTV.map((v,i)=>`<button type="button" data-hv="${i}" class="${i===histI?'on':''}">${v[1]}</button>`).join('')}</div>
+  ${media.history?`<div class="media"><video id="vid" src="${HISTV[histI][0]}" controls playsinline></video></div>`:`<div class="media"><div class="empty">العرض المرئي عن تاريخ عُمان${pickBox('history','video/*','اختر ملف الفيديو')}<span class="note">يعمل الفيديو من جهاز العرض مباشرة ولا يُرفع إلى أي مكان.</span></div></div>`}`;
  }
  else if(s==='osam'&&!ribbonCut){
   h=`<div class="eyebrow">الفقرة الرابعة</div><h1 class="h" style="font-size:clamp(34px,5vw,64px)">افتتاح رابطة الطلاب العمانيين بجامعة ميجيل</h1>
@@ -288,19 +307,31 @@ function render(){
   h=`<div class="eyebrow">الفقرة الرابعة · أكتوبر ٢٠٢٦</div><h1 class="h" style="font-size:clamp(34px,5vw,64px)">افتتاح الرابطة وما أنجزناه</h1>
   <div class="stats">
    <div class="stat"><b>${ar(3)}</b><span>مؤسسون</span></div>
-   <div class="stat"><b>${ar(13)}</b><span>عضواً</span></div>
-   <div class="stat"><b>${ar(2)}</b><span>دليلان بالعربية والإنجليزية</span></div>
-   <div class="stat"><b>${ar(8)}</b><span>فيديوهات تعريفية وتوضيحية</span></div>
+   <div class="stat"><b>${ar(14)}</b><span>عضواً</span></div>
+   <div class="stat"><b>${ar(3)}</b><span>أدلة بالعربية والإنجليزية</span></div>
+   <div class="stat"><b>${ar(10)}</b><span>فيديوهات تعريفية وتوضيحية</span></div>
   </div>
   <div class="list">
    <div class="item"><b>دليل التقديم على الزمالة الطبية في ميجيل</b><span>${ar(225)} صفحة بالعربية والإنجليزية، من إعلان الزمالة إلى الاستقرار في مونتريال</span></div>
    <div class="item"><b>دليل الشتاء في مونتريال</b><span>نسختان عربية وإنجليزية للمبتعثين وأسرهم</span></div>
-   <div class="item"><b>عروض وفيديوهات</b><span>ملخص الدليل وشرحه المفصل، والفيديو التعريفي، وفيديو الشتاء، وعرضان تقديميان</span></div>
+   <div class="item new"><b>دليل المكتبات وأماكن الدراسة في مونتريال</b><span>مكتبات ميجيل والمستشفيات والمكتبات العامة والجامعات الأخرى، مع خرائط جوجل ومواعيد الأسبوع</span></div>
+   <div class="item new"><b>فيديو «<bdi dir="ltr">This is Oman</bdi>» عن تاريخ عُمان</b><span>رحلة عبر حقب عُمان حتى النهضة المتجددة، بالإنجليزية مع ترجمة عربية</span></div>
+   <div class="item"><b>عروض وفيديوهات</b><span>ملخص دليل الزمالة وشرحه المفصل، والفيديو التعريفي، وفيديو الشتاء، وفيديو دليل المكتبات، وعرضان تقديميان</span></div>
    <div class="item"><b>حضور رقمي باسم الرابطة</b><span>إنستغرام @osamcgill · osamcgill.github.io/guides · osamcgill@gmail.com</span></div>
    <div class="item next"><b>الخطوة القادمة</b><span>الاعتراف الرسمي بالرابطة في جامعة ميجيل بالتنسيق مع الملحقية الثقافية</span></div>
    <div class="item next"><b>ومعكم نكمل</b><span>استقبال القادمين الجدد، وإشراك الخريجين، وأنشطة للأسر طوال العام</span></div>
   </div>
   <button type="button" class="tool" id="bgmbtn" style="margin-top:4px">♪ تشغيل الموسيقى</button>`;
+ }
+ else if(s==='members'){
+  h=`<div class="eyebrow">الفقرة الرابعة · أسرة الرابطة</div><h1 class="h" style="font-size:clamp(32px,4.6vw,58px)">مؤسسو الرابطة وأعضاؤها</h1>
+  <div class="fnd">
+   <div><small>رئيس الرابطة</small><b>الدكتور هشام العبري</b><span>زمالة جراحة تجميل وترميم العيون</span></div>
+   <div><small>نائبة الرئيس</small><b>الدكتورة بدرية الرواحية</b><span>زمالة اضطرابات الحركة</span></div>
+   <div><small>أمين السر</small><b>الدكتور أحمد العبري</b><span>زمالة طب طوارئ الأطفال</span></div>
+  </div>
+  <div class="mem"><div><p><b>سلمى راشد سالم العبرية</b><span>الحساسية والمناعة</span></p></div><div><p><b>عائشة سالم الشعيبية</b><span>زمالة طب طوارئ الأطفال</span></p></div><div><p><b>محمد سعيد محمد الغماري</b><span>التخصص في جراحة القلب</span></p></div><div><p><b>أميمة عاشور فرج مجزح</b><span>زمالة طب طوارئ الأطفال</span></p></div><div><p><b>كريمة راشد سالم العليانية</b><span>زمالة تخدير الأطفال</span></p></div><div><p><b>آسية هلال سليمان المعمرية</b><span>زمالة التخدير لجراحة الصدر</span></p></div><div><p><b>حفصة عمر عامر الشريقية</b><span>زمالة طب طوارئ الأطفال</span></p></div><div><p><b>عبير محمد المكية</b><span>زمالة التنظير العلاجي المتقدم</span></p></div><div><p><b>مريم ماجد المخينية</b><span>تصوير البطن والأشعة التداخلية غير الوعائية</span></p></div><div><p><b>هشام إبراهيم الهنائي</b><span>التخصص في جراحة المسالك البولية</span></p></div><div><p><b>سبأ الرواحية</b><span>التخصص في طب أعصاب الأطفال</span></p></div><div><p><b>هاجر خلفان الجديدية</b><span>زمالة طب طوارئ الأطفال</span></p></div><div class="new"><p><b>فارس عبدالله حمد سليمان الفارسي</b><span>التخصص في جراحة القلب والأوعية الدموية</span></p></div><div class="new"><p><b>جهاد الحبسية</b><span>التخصص في جراحة المخ والأعصاب</span></p></div></div>
+  <p class="note">${ar(3)} مؤسسين و${ar(14)} عضواً · نرحب بالدكتور فارس الفارسي والدكتورة جهاد الحبسية</p>`;
  }
  else if(s==='kids'&&!kidsBackup){
   h=`<div class="eyebrow">الفقرة الخامسة</div><h1 class="h" style="font-size:clamp(34px,5vw,64px)">ألعاب الأطفال في اليوم الوطني</h1>
@@ -349,6 +380,7 @@ function quizHTML(kind){
 }
 
 function wire(s){
+ stage.querySelectorAll('[data-hv]').forEach(b=>b.onclick=()=>{histI=+b.dataset.hv;render();const v=document.getElementById('vid');if(v)v.play().catch(()=>{});});
  stage.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(+b.dataset.go));
  const ob=document.getElementById('openbtn');if(ob){syncOpenBtn();ob.onclick=e=>{e.stopPropagation();if(OPEN.paused){openWanted=true;startOPEN();}else{openWanted=false;stopOPEN();}};if(openWanted&&OPEN.paused)startOPEN();}
  const an=[...stage.querySelectorAll('audio.anth')];an.forEach(a=>a.addEventListener('play',()=>an.forEach(o=>{if(o!==a)o.pause()})));
